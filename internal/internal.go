@@ -1,15 +1,32 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 )
 
-func GetMapLocations() {
+type Locations struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
 
-	res, err := http.Get("https://pokeapi.co/api/v2/location-area")
+type Data struct {
+	Count    int         `json:"count"`
+	Next     *string     `json:"next"`
+	Previous *string     `json:"previous"`
+	Results  []Locations `json:"results"`
+}
+type Config struct {
+	Next     *string     `json:"next"`
+	Previous *string     `json:"previous"`
+	Results  []Locations `json:"results"`
+}
+
+func GetInitialLocations(url string) Config {
+	res, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -22,5 +39,13 @@ func GetMapLocations() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%s", body)
+	d := Data{}
+	errJson := json.Unmarshal(body, &d)
+	if errJson != nil {
+		fmt.Println("Could not format into Go-struct properly")
+	}
+
+	results := d.Results
+
+	return Config{Next: d.Next, Previous: d.Previous, Results: results}
 }
