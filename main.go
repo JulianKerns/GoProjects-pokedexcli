@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	internal "github.com/JulianKerns/pokedexcli/internal"
+	pokeAPI "github.com/JulianKerns/pokedexcli/internal/pokeAPI"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	type cliCommandMap struct {
 		name        string
 		description string
-		callback    func(*string, *string) error
+		callback    func(*pokeAPI.Data) error
 	}
 
 	commandHelp := func() error {
@@ -37,31 +37,39 @@ func main() {
 		return nil
 	}
 	// variable and Pointer that are getting changed and storing the value of the current URL to traverse the locations
-	startingConfig := internal.GetInitialLocations("https://pokeapi.co/api/v2/location-area")
-	var startingPointer *internal.Config = &startingConfig
+	var startingConfig pokeAPI.Data = pokeAPI.Data{}
+	var startingConfigPointer *pokeAPI.Data = &startingConfig
+	commandMap := func(cfg *pokeAPI.Data) error {
+		locationsResponse, err := pokeAPI.GetLocations(cfg.Next)
+		if err != nil {
+			return err
+		}
+		cfg.Next = locationsResponse.Next
+		cfg.Previous = locationsResponse.Previous
 
-	commandMap := func(mapNext, mapPrevious *string) error {
-		for _, locations := range startingPointer.Results {
+		for _, locations := range locationsResponse.Results {
 			fmt.Println(locations.Name)
 		}
-		*startingPointer = internal.GetInitialLocations(*mapNext)
-		fmt.Println(*startingPointer.Next)
-		fmt.Println(*startingPointer.Previous)
 		return nil
 	}
 
-	commandMapb := func(mapNext, mapPrevious *string) error {
-		if mapPrevious == nil {
-			fmt.Println("cant go back before going forward")
+	commandMapb := func(cfg *pokeAPI.Data) error {
+		if cfg.Previous == nil {
+			fmt.Println("you are on the first page, cant go back before going forward")
 			return nil
 
 		}
-		prevlocation := internal.GetInitialLocations(*mapPrevious)
-		for _, locationsb := range prevlocation.Results {
+		locationsResponse, err := pokeAPI.GetLocations(cfg.Previous)
+		if err != nil {
+			return err
+		}
+		cfg.Next = locationsResponse.Next
+		cfg.Previous = locationsResponse.Previous
+
+		for _, locationsb := range locationsResponse.Results {
 			fmt.Println(locationsb.Name)
 		}
 
-		*startingPointer = internal.GetInitialLocations(*mapPrevious)
 		return nil
 	}
 
@@ -107,11 +115,11 @@ func main() {
 		}
 
 		if input == commandLinesMap["map"].name {
-			commandLinesMap["map"].callback(startingPointer.Next, startingPointer.Previous)
+			commandLinesMap["map"].callback(startingConfigPointer)
 		}
 
 		if input == commandLinesMap["mapb"].name {
-			commandLinesMap["mapb"].callback(startingPointer.Next, startingPointer.Previous)
+			commandLinesMap["mapb"].callback(startingConfigPointer)
 
 		}
 
