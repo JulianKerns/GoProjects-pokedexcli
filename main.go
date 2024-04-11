@@ -45,10 +45,73 @@ func main() {
 	cache := pokecache.NewCache(500 * time.Millisecond)
 
 	commandMap := func(cfg *pokeAPI.Data) error {
-		cachedData, ok := cache.Get(*cfg.Next)
-		if !ok {
-
+		if cfg.Next == nil {
 			locationsResponse, err := pokeAPI.GetLocations(cfg.Next)
+			if err != nil {
+				return err
+			}
+			cfg.Next = locationsResponse.Next
+			cfg.Previous = locationsResponse.Previous
+
+			for _, locations := range locationsResponse.Results {
+				fmt.Println(locations.Name)
+			}
+
+		} else {
+			cachedData, ok := cache.Get(*cfg.Next)
+			if !ok {
+				locationsResponse, err := pokeAPI.GetLocations(cfg.Next)
+				if err != nil {
+					return err
+				}
+				cfg.Next = locationsResponse.Next
+				cfg.Previous = locationsResponse.Previous
+
+				for _, locations := range locationsResponse.Results {
+					fmt.Println(locations.Name)
+				}
+
+			} else {
+				data := pokeAPI.Data{}
+				errJson := json.Unmarshal(cachedData, &data)
+				if errJson != nil {
+					fmt.Println("Could not format into Go-struct properly")
+				}
+				cfg.Next = data.Next
+				cfg.Previous = data.Previous
+
+				for _, locations := range data.Results {
+					fmt.Println(locations.Name)
+				}
+
+			}
+
+		}
+		return nil
+	}
+
+	commandMapb := func(cfg *pokeAPI.Data) error {
+		if cfg.Previous == nil {
+			fmt.Println("you are on the first page, cant go back before going forward")
+			return nil
+		}
+
+		if cfg.Previous == nil {
+			locationsResponse, err := pokeAPI.GetLocations(cfg.Previous)
+			if err != nil {
+				return err
+			}
+			cfg.Next = locationsResponse.Next
+			cfg.Previous = locationsResponse.Previous
+
+			for _, locations := range locationsResponse.Results {
+				fmt.Println(locations.Name)
+			}
+
+		}
+		cachedData, ok := cache.Get(*cfg.Previous)
+		if !ok {
+			locationsResponse, err := pokeAPI.GetLocations(cfg.Previous)
 			if err != nil {
 				return err
 			}
@@ -73,43 +136,6 @@ func main() {
 			}
 
 		}
-		return nil
-	}
-
-	commandMapb := func(cfg *pokeAPI.Data) error {
-		if cfg.Previous == nil {
-			fmt.Println("you are on the first page, cant go back before going forward")
-			return nil
-		}
-
-		cachedData, ok := cache.Get(*cfg.Previous)
-		if !ok {
-
-			locationsResponse, err := pokeAPI.GetLocations(cfg.Previous)
-			if err != nil {
-				return err
-			}
-			cfg.Next = locationsResponse.Next
-			cfg.Previous = locationsResponse.Previous
-
-			for _, locationsb := range locationsResponse.Results {
-				fmt.Println(locationsb.Name)
-			}
-		} else {
-			data := pokeAPI.Data{}
-			errJson := json.Unmarshal(cachedData, &data)
-			if errJson != nil {
-				fmt.Println("Could not format into Go-struct properly")
-			}
-			cfg.Next = data.Next
-			cfg.Previous = data.Previous
-
-			for _, locations := range data.Results {
-				fmt.Println(locations.Name)
-			}
-
-		}
-
 		return nil
 	}
 

@@ -28,6 +28,7 @@ func GetLocations(pageURL *string) (Data, error) {
 	if pageURL == nil {
 		pageURL = &baseURL
 	}
+	fmt.Println(*pageURL)
 	res, err := http.Get(*pageURL)
 	if err != nil {
 		return Data{}, err
@@ -42,7 +43,7 @@ func GetLocations(pageURL *string) (Data, error) {
 	}
 	cache := pokecache.NewCache(500 * time.Millisecond)
 	go cache.Add(*pageURL, body)
-
+	fmt.Println(body)
 	d := Data{}
 	errJson := json.Unmarshal(body, &d)
 	if errJson != nil {
