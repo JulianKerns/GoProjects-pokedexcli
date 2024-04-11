@@ -1,7 +1,6 @@
 package pokecache
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -16,11 +15,16 @@ type CacheEntry struct {
 }
 
 func (c *Cache) Add(key string, value []byte) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	tInitial := time.Now()
 	c.cmap[key] = CacheEntry{createdAt: tInitial, val: value}
 }
 
 func (c *Cache) Get(key string) ([]byte, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	value, ok := c.cmap[key]
 	if !ok {
 		return nil, false
@@ -48,11 +52,10 @@ func (c *Cache) ReapLoop(intervalTime time.Duration) {
 	}
 }
 
-func NewCache(interval time.Duration) {
-	t0 := time.Now()
-	//cacheMap := make(map[string]CacheEntry)
-	//cacheMutex := &sync.Mutex{}
-	//InitialCache := Cache{mu: cacheMutex, cmap: cacheMap}
-	t1 := time.Now()
-	fmt.Printf("Initialization took %v miliseconds.\n", t1.Sub(t0))
+func NewCache(interval time.Duration) *Cache {
+	cacheMap := make(map[string]CacheEntry)
+	cacheMutex := &sync.Mutex{}
+	InitialCache := &Cache{mu: cacheMutex, cmap: cacheMap}
+	go InitialCache.ReapLoop(interval)
+	return InitialCache
 }

@@ -6,6 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
+
+	pokecache "github.com/JulianKerns/pokedexcli/internal/pokecache"
 )
 
 type Locations struct {
@@ -37,6 +40,8 @@ func GetLocations(pageURL *string) (Data, error) {
 	if err != nil {
 		return Data{}, err
 	}
+	cache := pokecache.NewCache(500 * time.Millisecond)
+	go cache.Add(*pageURL, body)
 
 	d := Data{}
 	errJson := json.Unmarshal(body, &d)
