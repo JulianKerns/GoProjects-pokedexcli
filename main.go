@@ -39,6 +39,7 @@ func main() {
 	// variable and Pointer that are getting changed and storing the value of the current URL to traverse the locations
 	var startingConfig pokeAPI.Data = pokeAPI.Data{}
 	var startingConfigPointer *pokeAPI.Data = &startingConfig
+
 	commandMap := func(cfg *pokeAPI.Data) error {
 		locationsResponse, err := pokeAPI.GetLocations(cfg.Next)
 		if err != nil {
