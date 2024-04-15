@@ -24,7 +24,7 @@ type cliCommandMap struct {
 type cliCommandExplore struct {
 	name        string
 	description string
-	callback    func(string) error
+	callback    func(...string) error
 }
 
 var commandLines = map[string]cliCommand{
@@ -75,12 +75,9 @@ func StartRepl() {
 		}
 
 		command := cleaned[0]
-		if len(cleaned) == 2 {
-			location := cleaned[1]
-			if command == commandLinesExplore["explore"].name {
-				commandLinesExplore["explore"].callback(location)
-			}
-
+		args := []string{}
+		if len(cleaned) > 1 {
+			args = cleaned[1:]
 		}
 
 		if command == commandLines["exit"].name {
@@ -98,6 +95,10 @@ func StartRepl() {
 		if command == commandLinesMap["mapb"].name {
 			commandLinesMap["mapb"].callback(startingConfigPointer)
 
+		}
+
+		if command == commandLinesExplore["explore"].name {
+			commandLinesExplore["explore"].callback(args...)
 		}
 
 	}

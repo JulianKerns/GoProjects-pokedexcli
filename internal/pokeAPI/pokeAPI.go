@@ -84,7 +84,7 @@ func GetLocations(pageURL *string) (Data, error) {
 	if pageURL == nil {
 		pageURL = &baseURL
 	}
-	fmt.Println(*pageURL)
+
 	res, err := http.Get(*pageURL)
 	if err != nil {
 		return Data{}, err
