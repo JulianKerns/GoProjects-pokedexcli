@@ -9,7 +9,7 @@ import (
 )
 
 func commandExplore(location ...string) error {
-	if len(location) == 0 {
+	if len(location) != 1 {
 		return errors.New("no location area provided")
 	}
 	locationArea := location[0]

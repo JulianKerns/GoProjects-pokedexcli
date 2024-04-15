@@ -11,74 +11,6 @@ import (
 	pokecache "github.com/JulianKerns/pokedexcli/internal/pokecache"
 )
 
-type Locations struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
-}
-
-type Data struct {
-	Count    int         `json:"count"`
-	Next     *string     `json:"next"`
-	Previous *string     `json:"previous"`
-	Results  []Locations `json:"results"`
-}
-
-type LocationData struct {
-	EncounterMethodRates []struct {
-		EncounterMethod struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"encounter_method"`
-		VersionDetails []struct {
-			Rate    int `json:"rate"`
-			Version struct {
-				Name string `json:"name"`
-				URL  string `json:"url"`
-			} `json:"version"`
-		} `json:"version_details"`
-	} `json:"encounter_method_rates"`
-	GameIndex int `json:"game_index"`
-	ID        int `json:"id"`
-	Location  struct {
-		Name string `json:"name"`
-		URL  string `json:"url"`
-	} `json:"location"`
-	Name  string `json:"name"`
-	Names []struct {
-		Language struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"language"`
-		Name string `json:"name"`
-	} `json:"names"`
-	PokemonEncounters []struct {
-		Pokemon struct {
-			Name string `json:"name"`
-			URL  string `json:"url"`
-		} `json:"pokemon"`
-		VersionDetails []struct {
-			EncounterDetails []struct {
-				Chance          int `json:"chance"`
-				ConditionValues []struct {
-					Name string `json:"name"`
-					URL  string `json:"url"`
-				} `json:"condition_values"`
-				MaxLevel int `json:"max_level"`
-				Method   struct {
-					Name string `json:"name"`
-					URL  string `json:"url"`
-				} `json:"method"`
-				MinLevel int `json:"min_level"`
-			} `json:"encounter_details"`
-			MaxChance int `json:"max_chance"`
-			Version   struct {
-				Name string `json:"name"`
-				URL  string `json:"url"`
-			} `json:"version"`
-		} `json:"version_details"`
-	} `json:"pokemon_encounters"`
-}
-
 func GetLocations(pageURL *string) (Data, error) {
 	baseURL := "https://pokeapi.co/api/v2/location-area"
 	if pageURL == nil {
@@ -139,5 +71,32 @@ func ExploreLocation(location string) ([]string, error) {
 
 	}
 	return pokemonList, nil
+
+}
+
+func GettingPokemonInfo(location string) (PokemonInfo, error) {
+	baseURL := "https://pokeapi.co/api/v2/pokemon"
+
+	pokemonURL := fmt.Sprintf(baseURL+"/%s", location)
+	res, err := http.Get(pokemonURL)
+	if err != nil {
+		return PokemonInfo{}, err
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return PokemonInfo{}, err
+	}
+
+	cache := pokecache.NewCache(500 * time.Millisecond)
+	go cache.Add(pokemonURL, body)
+
+	pokemonData := PokemonInfo{}
+	errLoc := json.Unmarshal(body, &pokemonData)
+	if errLoc != nil {
+		fmt.Println("Could not format into Go-struct properly")
+	}
+
+	return pokemonData, nil
 
 }

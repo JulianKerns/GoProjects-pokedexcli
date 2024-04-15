@@ -9,6 +9,7 @@ func commandHelp() error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Println("")
+	fmt.Println("catch <pokemonname>: Tries to catch a Pokemon and adds it to the Pokedex!")
 	fmt.Println("help: Displays a help message")
 	fmt.Println("exit: Exits the Pokedex")
 	fmt.Println("explore <area-name>: Gives out a List of all the possoble Pokemon encounters in an area")

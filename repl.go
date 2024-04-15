@@ -21,7 +21,7 @@ type cliCommandMap struct {
 	callback    func(*pokeAPI.Data) error
 }
 
-type cliCommandExplore struct {
+type cliCommandExploreCatch struct {
 	name        string
 	description string
 	callback    func(...string) error
@@ -30,12 +30,12 @@ type cliCommandExplore struct {
 var commandLines = map[string]cliCommand{
 	"help": {
 		name:        "help",
-		description: "Displays a help message",
+		description: "Displays a help message!",
 		callback:    commandHelp,
 	},
 	"exit": {
 		name:        "exit",
-		description: "Exits the Pokedex",
+		description: "Exits the Pokedex!",
 		callback:    commandExit,
 	},
 }
@@ -43,21 +43,26 @@ var commandLines = map[string]cliCommand{
 var commandLinesMap = map[string]cliCommandMap{
 	"map": {
 		name:        "map",
-		description: "Displays the next 20 locations to explore",
+		description: "Displays the next 20 locations to explore!",
 		callback:    commandMap,
 	},
 	"mapb": {
 		name:        "mapb",
-		description: "Displays the 20 locations that have already been explored",
+		description: "Displays the 20 locations that have already been explored!",
 		callback:    commandMapb,
 	},
 }
 
-var commandLinesExplore = map[string]cliCommandExplore{
+var commandLinesExploreCatch = map[string]cliCommandExploreCatch{
 	"explore": {
 		name:        "explore",
-		description: "Gives out a List of all the possoble Pokemon encounters in the given area",
+		description: "Gives out a List of all the possoble Pokemon encounters in the given area!",
 		callback:    commandExplore,
+	},
+	"catch": {
+		name:        "catch",
+		description: "Tries to catch the given Pokemon!",
+		callback:    commandCatch,
 	},
 }
 
@@ -97,8 +102,12 @@ func StartRepl() {
 
 		}
 
-		if command == commandLinesExplore["explore"].name {
-			commandLinesExplore["explore"].callback(args...)
+		if command == commandLinesExploreCatch["explore"].name {
+			commandLinesExploreCatch["explore"].callback(args...)
+		}
+
+		if command == commandLinesExploreCatch["catch"].name {
+			commandLinesExploreCatch["catch"].callback(args...)
 		}
 
 	}
