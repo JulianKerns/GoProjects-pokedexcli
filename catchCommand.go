@@ -22,11 +22,11 @@ func commandCatch(pokemon ...string) error {
 			return err
 		}
 		baseExperience := pokemonInfo.BaseExperience
-		fmt.Printf("Trying to Catch %s:\n", pokemonInfo.Name)
+		fmt.Printf("Throwing a pokeball at %s...\n", pokemonInfo.Name)
 		if CatchingPokemon(baseExperience) {
 			fmt.Printf("%s was caught\n", pokemonInfo.Name)
 			pokedex[pokemonName] = pokemonInfo
-			fmt.Println(pokedex[pokemonName].Height)
+
 		} else {
 			fmt.Printf("%s escaped the ball!\n", pokemonInfo.Name)
 		}
@@ -38,11 +38,11 @@ func commandCatch(pokemon ...string) error {
 		fmt.Println("Could not format into Go-struct properly")
 	}
 	baseExperience := pokemonData.BaseExperience
-	fmt.Printf("Trying to Catch %s:\n", pokemonData.Name)
+	fmt.Printf("Throwing a pokeball at %s...\n", pokemonData.Name)
 	if CatchingPokemon(baseExperience) {
 		fmt.Printf("%s was caught\n", pokemonData.Name)
 		pokedex[pokemonName] = pokemonData
-		fmt.Println(pokedex[pokemonName].Height)
+
 	} else {
 		fmt.Printf("%s escaped the ball!\n", pokemonData.Name)
 	}

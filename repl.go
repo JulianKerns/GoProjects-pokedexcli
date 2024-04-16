@@ -38,6 +38,11 @@ var commandLines = map[string]cliCommand{
 		description: "Exits the Pokedex!",
 		callback:    commandExit,
 	},
+	"pokedex": {
+		name:        "pokedex",
+		description: "Displays all the Pokemon you caught so far!",
+		callback:    commandPokedex,
+	},
 }
 
 var commandLinesMap = map[string]cliCommandMap{
@@ -63,6 +68,11 @@ var commandLinesExploreCatch = map[string]cliCommandExploreCatch{
 		name:        "catch",
 		description: "Tries to catch the given Pokemon!",
 		callback:    commandCatch,
+	},
+	"inspect": {
+		name:        "inspect",
+		description: "Gives out vital information about a caught Pokemon!",
+		callback:    commandInspect,
 	},
 }
 
@@ -93,6 +103,10 @@ func StartRepl() {
 			commandLines["help"].callback()
 		}
 
+		if command == commandLines["pokedex"].name {
+			commandLines["pokedex"].callback()
+		}
+
 		if command == commandLinesMap["map"].name {
 			commandLinesMap["map"].callback(startingConfigPointer)
 		}
@@ -108,6 +122,10 @@ func StartRepl() {
 
 		if command == commandLinesExploreCatch["catch"].name {
 			commandLinesExploreCatch["catch"].callback(args...)
+		}
+
+		if command == commandLinesExploreCatch["inspect"].name {
+			commandLinesExploreCatch["inspect"].callback(args...)
 		}
 
 	}
